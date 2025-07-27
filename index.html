@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Jogo da Velha</title>
+  <style>
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;  /* centraliza horizontalmente */
+  align-items: center;      /* centraliza verticalmente */
+}
+
+.tabuleiro {
+  display: grid;
+  grid-template-columns: repeat(3, 60px);
+  grid-gap: 5px;
+}
+
+.casa {
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  text-align: center;
+  line-height: 60px;
+  border: 1px solid black;
+  cursor: pointer;
+}
+  </style>
+</head>
+<body>
+
+<h2>Jogo da Velha</h2>
+<div class="tabuleiro" id="tabuleiro"></div>
+<p id="mensagem"></p>
+
+<script>
+  const tabuleiro = [
+    ['', '', ''],
+    ['', '', ''],
+    ['', '', '']
+  ];
+
+  let jogadorAtual = 'X';
+
+  const tabuleiroHTML = document.getElementById('tabuleiro');
+  const mensagem = document.getElementById('mensagem');
+
+  function desenharTabuleiro() {
+    tabuleiroHTML.innerHTML = '';
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        const celula = document.createElement('div');
+        celula.className = 'casa';
+        celula.textContent = tabuleiro[i][j];
+        celula.addEventListener('click', () => jogar(i, j));
+        tabuleiroHTML.appendChild(celula);
+      }
+    }
+  }
+
+  function jogar(linha, coluna) {
+    if (tabuleiro[linha][coluna] !== '') return;
+
+    tabuleiro[linha][coluna] = jogadorAtual;
+    const vencedor = verificarVencedor(tabuleiro);
+
+    if (vencedor) {
+      mensagem.textContent = `Vencedor: ${vencedor}`;
+    } else if (verificarEmpate(tabuleiro)) {
+      mensagem.textContent = "Empate!";
+    } else {
+      jogadorAtual = jogadorAtual === 'X' ? 'O' : 'X';
+    }
+
+    desenharTabuleiro();
+  }
+
+  function verificarVencedor(board) {
+    const linhas = board;
+    const colunas = [0, 1, 2].map(i => board.map(row => row[i]));
+    const diagonais = [
+      [board[0][0], board[1][1], board[2][2]],
+      [board[0][2], board[1][1], board[2][0]]
+    ];
+
+    const todas = [...linhas, ...colunas, ...diagonais];
+
+    for (const linha of todas) {
+      if (linha[0] && linha.every(cel => cel === linha[0])) {
+        return linha[0];
+      }
+    }
+
+    return null;
+  }
+
+  function verificarEmpate(board) {
+    return board.flat().every(cel => cel !== '') && !verificarVencedor(board);
+  }
+
+  desenharTabuleiro();
+</script>
+
+</body>
+</html>
