@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Jogo da Velha Online - Divirta-se com este Clássico!</title>
   <meta name="description" content="Jogue o clássico Jogo da Velha (ou Tic Tac Toe) gratuitamente online. Fácil, rápido e divertido para todas as idades!">
@@ -10,64 +10,116 @@
   <meta name="author" content="Seu Nome ou Nome do Site">
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
+      padding: 20px;
       font-family: Arial, sans-serif;
-      height: 100vh;
+      background-color: #f9f9f9;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      background-color: #f9f9f9;
+      min-height: 100vh;
     }
 
     h1 {
-      margin-bottom: 20px;
-      font-size: 32px;
+      font-size: 28px;
       color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 16 / 9;
+      margin-bottom: 20px;
+    }
+
+    .video-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
 
     .tabuleiro {
       display: grid;
-      grid-template-columns: repeat(3, 60px);
-      grid-gap: 5px;
+      grid-template-columns: repeat(3, 80px);
+      gap: 5px;
+      margin-bottom: 20px;
     }
 
     .casa {
-      width: 60px;
-      height: 60px;
-      font-size: 24px;
+      width: 80px;
+      height: 80px;
+      font-size: 28px;
       text-align: center;
-      line-height: 60px;
-      border: 1px solid #000;
+      line-height: 80px;
+      border: 2px solid #333;
       background-color: #fff;
       cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s;
+    }
+
+    .casa:hover {
+      background-color: #f0f0f0;
     }
 
     #mensagem {
-      margin-top: 20px;
       font-size: 20px;
       color: #444;
+      margin-bottom: 15px;
+    }
+
+    #reiniciar {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #reiniciar:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
 
   <h1>Jogo da Velha Online</h1>
+
+  <div class="video-container">
+    <iframe 
+      src="https://modeloanuncio01.pages.dev/" 
+      title="Conteúdo extra"
+      allowfullscreen>
+    </iframe>
+  </div>
+
   <div class="tabuleiro" id="tabuleiro" aria-label="Tabuleiro do jogo da velha"></div>
   <p id="mensagem" role="status" aria-live="polite"></p>
+  <button id="reiniciar">Reiniciar Jogo</button>
 
   <script>
-    const tabuleiro = [
+    let tabuleiro = [
       ['', '', ''],
       ['', '', ''],
       ['', '', '']
     ];
 
     let jogadorAtual = 'X';
+    let jogoAtivo = true;
 
     const tabuleiroHTML = document.getElementById('tabuleiro');
     const mensagem = document.getElementById('mensagem');
+    const btnReiniciar = document.getElementById('reiniciar');
 
     function desenharTabuleiro() {
       tabuleiroHTML.innerHTML = '';
@@ -79,24 +131,31 @@
           celula.setAttribute('data-coluna', j);
           celula.setAttribute('aria-label', `Casa linha ${i + 1}, coluna ${j + 1}`);
           celula.textContent = tabuleiro[i][j];
-          celula.addEventListener('click', () => jogar(i, j));
+
+          if (tabuleiro[i][j] === '' && jogoAtivo) {
+            celula.addEventListener('click', () => jogar(i, j));
+          }
+
           tabuleiroHTML.appendChild(celula);
         }
       }
     }
 
     function jogar(linha, coluna) {
-      if (tabuleiro[linha][coluna] !== '') return;
+      if (!jogoAtivo || tabuleiro[linha][coluna] !== '') return;
 
       tabuleiro[linha][coluna] = jogadorAtual;
       const vencedor = verificarVencedor(tabuleiro);
 
       if (vencedor) {
-        mensagem.textContent = `Vencedor: ${vencedor}`;
+        mensagem.textContent = `🎉 Vencedor: ${vencedor}`;
+        jogoAtivo = false;
       } else if (verificarEmpate(tabuleiro)) {
-        mensagem.textContent = "Empate!";
+        mensagem.textContent = "🤝 Empate!";
+        jogoAtivo = false;
       } else {
         jogadorAtual = jogadorAtual === 'X' ? 'O' : 'X';
+        mensagem.textContent = `Vez de: ${jogadorAtual}`;
       }
 
       desenharTabuleiro();
@@ -125,6 +184,19 @@
       return board.flat().every(cel => cel !== '') && !verificarVencedor(board);
     }
 
+    btnReiniciar.addEventListener('click', () => {
+      tabuleiro = [
+        ['', '', ''],
+        ['', '', ''],
+        ['', '', '']
+      ];
+      jogadorAtual = 'X';
+      jogoAtivo = true;
+      mensagem.textContent = 'Vez de: X';
+      desenharTabuleiro();
+    });
+
+    mensagem.textContent = 'Vez de: X';
     desenharTabuleiro();
   </script>
 
